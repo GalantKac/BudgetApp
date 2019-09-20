@@ -31,8 +31,7 @@ var budgetController = (function () {
             //Creat new ID
             if (data.allItems[type].length > 0) {
                 id = data.allItems[type][data.allItems[type].length - 1].id + 1;
-            }
-            else{
+            } else {
                 id = 0;
             }
 
@@ -63,7 +62,9 @@ var UIController = (function () {
         inputType: '.add__type',
         inputDescription: '.add__description',
         inputValue: '.add__value',
-        inputButton: '.add__btn'
+        inputButton: '.add__btn',
+        incomeContainer: '.income__list',
+        expensesContainer: '.expenses__list'
     };
 
     return {
@@ -74,6 +75,60 @@ var UIController = (function () {
                 text: document.querySelector(DOMstrings.inputDescription).value,
                 number: document.querySelector(DOMstrings.inputValue).value
             };
+        },
+
+        addListItem: function (obj, type) {
+
+            var html, newHTML, element;
+
+            if (type === 'inc') {
+
+                element = DOMstrings.incomeContainer;
+
+                html = '<div class="item clearfix" id="income-%id%">\n' +
+                    '                            <div class="item__description">%description%</div>\n' +
+                    '                            <div class="right clearfix">\n' +
+                    '                                <div class="item__value">%value%</div>\n' +
+                    '                                <div class="item__delete">\n' +
+                    '                                    <button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button>\n' +
+                    '                                </div>\n' +
+                    '                            </div>\n' +
+                    '                        </div>';
+            } else if (type === 'exp') {
+
+                element = DOMstrings.expensesContainer;
+
+                html = '<div class="item clearfix" id="expense-%id%">\n' +
+                    '                            <div class="item__description">%description%</div>\n' +
+                    '                            <div class="right clearfix">\n' +
+                    '                                <div class="item__value">%value%</div>\n' +
+                    '                                <div class="item__percentage">21%</div>\n' +
+                    '                                <div class="item__delete">\n' +
+                    '                                    <button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button>\n' +
+                    '                                </div>\n' +
+                    '                            </div>\n' +
+                    '                        </div>';
+            }
+
+            newHTML = html.replace('%id%', obj.id);
+            newHTML = newHTML.replace('%description%', obj.description);
+            newHTML = newHTML.replace('%value%', obj.value);
+
+            document.querySelector(element).insertAdjacentHTML('beforeend', newHTML);
+        },
+
+        clearFields: function(){
+            var fields, fieldsArray;
+
+            //this return list of selectors
+            fields = document.querySelectorAll(DOMstrings.inputDescription + ', ' + DOMstrings.inputValue);
+            //soo we must convert it on array, use Object Array and his prototype using slice to copy list by call method(this method is for list, use apply to array)
+            fieldsArray = Array.prototype.slice.call(fields);
+            //clear all index
+            fieldsArray.forEach(function (current, index, array) {
+                current.value = "";
+            })
+            fieldsArray[0].focus();
         },
 
         getDOMstrings: function () {
@@ -106,6 +161,11 @@ var controller = (function (budgetCtrl, UICtrl) {
         input = UICtrl.getInput();
         // Add the item to the budget controller
         newItem = budgetCtrl.addItem(input.type, input.text, input.number);
+        //Add the item to UI list
+        UICtrl.addListItem(newItem, input.type);
+        //Clear input fields
+        UICtrl.clearFields();
+
     }
 
     return {
